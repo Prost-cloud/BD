@@ -1,0 +1,33 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+    string GetInfo;
+    if (DBConnection.GetBool())
+    {
+        GetInfo = DBConnection.GetSomeData();
+    }
+    else
+    {
+        GetInfo = "no data!";
+    }
+
+    
+}
+
+
+
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <p>@GetInfo</p>
+    <div>
+        
+    </div>
+    <div>
+        <button style="padding: 10px; margin-bottom: 10px; border-color: black" class="Post" onclick="ClickButton()" runat="server">Опубликовать!</button>
+    </div>
+    
+
+</div>
