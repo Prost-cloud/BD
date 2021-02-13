@@ -2,18 +2,20 @@
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
-    string GetInfo;
-    if (DBConnection.GetBool())
-    {
-        GetInfo = DBConnection.GetSomeData();
-    }
-    else
-    {
-        GetInfo = "no data!";
-    }
+    string GetInfo = "";
 
-    
+    EMail[] GetData = DBConnection.SelectFromDb(2);
+
+    foreach (EMail mail in GetData) {
+        GetInfo += mail.ID + " " + mail.Title + " " + mail.MailFrom + " " + mail.MailTo + " "
+            + mail.Message + " " + mail.Date + " " + mail.AuthorName + "\n";
+        //DBConnection.InsertToDb(mail);
+    }
 }
+
+
+
+
 
 
 
@@ -28,6 +30,4 @@
     <div>
         <button style="padding: 10px; margin-bottom: 10px; border-color: black" class="Post" onclick="ClickButton()" runat="server">Опубликовать!</button>
     </div>
-    
-
 </div>
