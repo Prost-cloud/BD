@@ -33,7 +33,7 @@ namespace BD
             Date = date;
             AuthorName = authorName;
             //this.attachments = attachments;
-            //this.tags = tags;
+            this.tags = new Tags[8];
         }
 
         //public EMail(DataTable table)
@@ -48,7 +48,7 @@ namespace BD
         //    AuthorName = table.Rows[0].Field<string>("authorname");
         //}
 
-        public EMail(System.Data.DataRow email) : this
+        public EMail(DataRow email) : this
         (
             email.Field<int>("id"),
             email.Field<string>("Title"),
@@ -66,7 +66,16 @@ namespace BD
 
     public class Tags
     {
-        private string Name { get; set; }
+        public int Id { get; private set; }
+        public string Name { get; private set; }
+        
+        public Tags(int I, string name)
+        {
+            Id = I;
+            Name = name;
+        }
+
+        
     }
 
 
