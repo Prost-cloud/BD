@@ -36,17 +36,7 @@ namespace BD
             this.tags = new Tags[8];
         }
 
-        //public EMail(DataTable table)
-        //{
-
-        //    this.ID = table.Rows[0].Field<int>("id");
-        //    Title = table.Rows[0].Field<string>("Title");
-        //    MailFrom = table.Rows[0].Field<string>("mailfrom");
-        //    MailTo = table.Rows[0].Field<string>("mailto");
-        //    Message = table.Rows[0].Field<string>("message");
-        //    Date = table.Rows[0].Field<DateTime>("date");
-        //    AuthorName = table.Rows[0].Field<string>("authorname");
-        //}
+       
 
         public EMail(DataRow email) : this
         (

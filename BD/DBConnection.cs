@@ -60,17 +60,15 @@ namespace BD
 
             closeConnection();
 
-            
+
 
             if (table.Rows.Count > 0)
             {
                 EMail[] emails = new EMail[table.Rows.Count];
 
                 for (int i = 0; i < table.Rows.Count; i++)
-                { 
-                    var mail = new EMail(table.Rows[i]);
-                    emails[i] = mail;
-                    InsertToDb(mail);
+                {
+                    emails[i] = new EMail(table.Rows[i]);
                 }
 
                 return emails;
