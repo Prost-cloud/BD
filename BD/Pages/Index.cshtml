@@ -4,23 +4,26 @@
     ViewData["Title"] = "Home page";
     string GetInfo = "";
 
-    EMail[] GetData = DBConnection.SelectFromDb(2);
+    DateTime low = new DateTime(2021, 02, 4);
+    DateTime high = new DateTime(2021, 02, 9);
 
-    foreach (EMail mail in GetData) {
+    EMail[] GetData = EMail.selectFromDbByRange("date", low.ToString(), high.ToString());
+
+    foreach (EMail mail in GetData)
+    {
         GetInfo += mail.ID + " " + mail.Title + " " + mail.MailFrom + " " + mail.MailTo + " "
             + mail.Message + " " + mail.Date + " " + mail.AuthorName + "\n";
-        //DBConnection.InsertToDb(mail);
     }
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>@GetInfo</p>
-    <div>
-        
-    </div>
-    <div>
-        <button style="padding: 10px; margin-bottom: 10px; border-color: black" class="Post" onclick="ClickButton()" runat="server">Опубликовать!</button>
-    </div>
+	<h1 class="display-4">Welcome</h1>
+	<p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+	<p>@GetInfo</p>
+	<div>
+		
+	</div>
+	<div>
+		<button style="padding: 10px; margin-bottom: 10px; border-color: black" class="Post" onclick="ClickButton()" runat="server">Опубликовать!</button>
+	</div>
 </div>

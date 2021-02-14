@@ -1,62 +1,73 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace BD
+﻿namespace BD
 {
     public class CmdCreator
-    {
-        public static string GetInsertCmdText(string Table, string[] columns)
-        {
-            string cmdText = "INSERT INTO ";
-            cmdText += Table + " ";
+	{
+		public static string GetSelectCmdText(string table, string searchColumn = "")
+		{
+			string CmdText = "SELECT * FROM " + table + " ";
 
-            string cmdColumns = "(";
-            string cmdValues = "(";
+			if (searchColumn != string.Empty)
+			{
+				CmdText += "WHERE " + searchColumn + " = @" + searchColumn;
+			}
 
-            bool FirstIteration = true;
+			return CmdText;
+		}
+		public static string GetSelectCmdTextByRange(string table, string searchColumn, string searchColumn2)
+		{
+			string CmdText = "SELECT * FROM " + table + " ";
 
-            foreach (var col in columns)
-            {
-                if (FirstIteration)
-                {
-                    cmdColumns += col;
-                    cmdValues += "@" + col;
-                    FirstIteration = false;
-                }
-                else
-                {
-                    cmdColumns += ", " + col;
-                    cmdValues += ", @" + col;
-                }
-            }
+			CmdText += "WHERE " + searchColumn + " > '@"
+				+ searchColumn + "' and " + searchColumn + " < " + "'@" + searchColumn2 +  "'"; 
 
-            cmdColumns += ")";
-            cmdValues += ")";
+			return CmdText;
+		}
 
-            cmdText += cmdColumns + " values ";
+		public static string GetInsertCmdText(string Table, string[] columns)
+		{
+			string cmdText = "INSERT INTO ";
+			cmdText += Table + " ";
 
-            cmdText += cmdValues;
+			string cmdColumns = "(";
+			string cmdValues = "(";
 
-            return cmdText;
-        }
+			bool FirstIteration = true;
 
-        public static string GetSelectCmdText(string table, string searchColumn = "")
-        {
-            string CmdText = "SELECT * FROM " + table + " ";
+			foreach (var col in columns)
+			{
+				if (FirstIteration)
+				{
+					cmdColumns += col;
+					cmdValues += "@" + col;
+					FirstIteration = false;
+				}
+				else
+				{
+					cmdColumns += ", " + col;
+					cmdValues += ", @" + col;
+				}
+			}
 
-            if (searchColumn != string.Empty)
-            {
-                CmdText += "WHERE " + searchColumn + " = @" + searchColumn;
-            }
+			cmdColumns += ")";
+			cmdValues += ")";
 
-            return CmdText;
-        }
+			cmdText += cmdColumns + " values ";
 
-        public static string GetMaxValueFromDbByColumn(string table, string column)
-        {
-            return "SELECT max(" + column + ") as id FROM " + table;
-        }
-    }
+			cmdText += cmdValues;
+
+			return cmdText;
+		}
+
+		public static string GetDeleteCmdText(string table, string column)
+		{
+			string text = "DELETE FROM " + table + " WHERE " + column + " = @" + column;
+
+			return text;
+		}
+
+		public static string GetFuncValueFromDbByColumn(string table, string column, string function)
+		{
+			return "SELECT " + function + "(" + column + ") as id FROM " + table;
+		}
+	}
 }

@@ -1,160 +1,104 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
-using System.Data.Common;
+﻿using MySql.Data.MySqlClient;
 using System.Data;
 
 namespace BD
 {
     public class DBConnection
-    {
+	{
 
-        private static MySqlConnection DBConnect = GetConnectString();
-        private static MySqlConnection GetConnectString()
-        {
-            string host = "localhost";
-            int port = 3306;
-            string database = "emails";
-            string username = "root";
-            string password = "root";
+		private static readonly MySqlConnection DBConnect = GetConnectString();
+		private static MySqlConnection GetConnectString()
+		{
+			string host = "localhost";
+			int port = 3306;
+			string database = "emails";
+			string username = "root";
+			string password = "root";
 
-            return new MySqlConnection("server=" + host + ";port=" + port +
-               ";username=" + username + ";password=" + password + ";Database=" + database);
-        }
+			return new MySqlConnection("server=" + host + ";port=" + port +
+			   ";username=" + username + ";password=" + password + ";Database=" + database);
+		}
 
-        private static void openConnection()
-        {
-            if (DBConnect.State == ConnectionState.Closed)
-            {
-                DBConnect.Open();
-            }
-        }
+		private static void OpenConnection()
+		{
+			if (DBConnect.State == ConnectionState.Closed)
+			{
+				DBConnect.Open();
+			}
+		}
 
-        private static void closeConnection()
-        {
-            if (DBConnect.State == ConnectionState.Open)
-            {
-                DBConnect.Close();
-            }
-        }
-
-
-        public static EMail[] SelectFromDb(int idMessage)
-        {
-            openConnection();
-
-            DataTable table = new DataTable();
-
-            MySqlDataAdapter adapter = new MySqlDataAdapter();
-
-            string cmdText = idMessage == -1 ? CmdCreator.GetSelectCmdText("mail") : CmdCreator.GetSelectCmdText("mail", "id");
-            MySqlCommand cmd = new MySqlCommand(cmdText, DBConnect);
-
-            cmd.Parameters.Add("id", MySqlDbType.Int64).Value = idMessage;
-
-            adapter.SelectCommand = cmd;
-
-            adapter.Fill(table);
-
-            closeConnection();
+		private static void CloseConnection()
+		{
+			if (DBConnect.State == ConnectionState.Open)
+			{
+				DBConnect.Close();
+			}
+		}
 
 
+		public static DataTable SelectFromDb(MySqlCommand cmd)
+		{
+			OpenConnection();
 
-            if (table.Rows.Count > 0)
-            {
-                EMail[] emails = new EMail[table.Rows.Count];
+			DataTable DataTable = new DataTable();
 
-                for (int i = 0; i < table.Rows.Count; i++)
-                {
-                    emails[i] = new EMail(table.Rows[i]);
-                }
+			MySqlDataAdapter adapter = new MySqlDataAdapter();
 
-                return emails;
-            }
-            return new EMail[0];
-        }
+			cmd.Connection = DBConnect;
+			
+			adapter.SelectCommand = cmd;
 
+			adapter.Fill(DataTable);
 
-        private static int GetMaxMailId()
-        {
-            openConnection();
+			CloseConnection();
+						
+			return DataTable;
+		}
 
-            DataTable table = new DataTable();
+		public static void InsertToDb(MySqlCommand cmd)
+		{
+			OpenConnection();
+		   
+			MySqlDataAdapter adapter = new MySqlDataAdapter();
 
-            MySqlDataAdapter adapter = new MySqlDataAdapter();
+			adapter.InsertCommand = cmd;
 
-            MySqlCommand cmd = new MySqlCommand(CmdCreator.GetMaxValueFromDbByColumn("mail", "id"), DBConnect);
+			cmd.Connection = DBConnect;
 
-            adapter.SelectCommand = cmd;
+			cmd.ExecuteNonQuery();
 
-            adapter.Fill(table);
+			CloseConnection();
+		}
 
-            closeConnection();
+		public static void UpdateToDb(string CmdText, MySqlCommand cmd)
+		{
+			OpenConnection();
 
-            return table.Rows[0].Field<int>("id");
-        }
+			MySqlDataAdapter adapter = new MySqlDataAdapter();
 
+			adapter.UpdateCommand = cmd;
+			
+			cmd.Connection = DBConnect;
 
+			cmd.ExecuteNonQuery();
+			
+			CloseConnection();
+		}
 
-        public static void InsertToDb(EMail mail)
-        {
-            int CurrentId = GetMaxMailId() + 1;
+		public static void DeleteFromDB(MySqlCommand cmd)
+		{
+			OpenConnection();
 
-            openConnection();
+			MySqlDataAdapter adapter = new MySqlDataAdapter();
 
-            DataTable table = new DataTable();
+			adapter.DeleteCommand = cmd;
 
-            MySqlDataAdapter adapter = new MySqlDataAdapter();
+			cmd.Connection = DBConnect;
 
-            string CmdText = CmdCreator.GetInsertCmdText("mail", new string[7] { "id", "title", "mailfrom", "mailto", "message", "date", "authorname" });
-            MySqlCommand cmd = new MySqlCommand(CmdText, DBConnect);
+			cmd.ExecuteNonQuery();
 
-            cmd.Parameters.Add("id", MySqlDbType.Int64).Value = CurrentId;
-            cmd.Parameters.Add("title", MySqlDbType.VarChar).Value = mail.Title;
-            cmd.Parameters.Add("mailfrom", MySqlDbType.VarChar).Value = mail.MailFrom;
-            cmd.Parameters.Add("mailto", MySqlDbType.VarChar).Value = mail.MailTo;
-            cmd.Parameters.Add("message", MySqlDbType.VarChar).Value = mail.Message;
-            cmd.Parameters.Add("date", MySqlDbType.DateTime).Value = mail.Date;
-            cmd.Parameters.Add("authorname", MySqlDbType.VarChar).Value = mail.AuthorName;
+			CloseConnection();
+		}
 
-            adapter.InsertCommand = cmd;
-
-            cmd.ExecuteNonQuery();
-
-            mail.tags[0] = new Tags(1, "TP");
-            mail.tags[1] = new Tags(3, "qwerw");
-
-            UpdateMailTags(CurrentId, mail.tags);
-
-            closeConnection();
-        }
-
-        public static void UpdateToDb(EMail mail)
-        {
-
-        }
-
-        private static void UpdateMailTags(int id, Tags[] tags)
-        {
-
-            openConnection();
-
-            string CmdText = CmdCreator.GetInsertCmdText("tagjoins", new string[2] { "idmail", "idtag" });
-            MySqlCommand cmd = new MySqlCommand(CmdText, DBConnect);
-
-            cmd.Parameters.Add("idmail", MySqlDbType.Int32).Value = id;
-            cmd.Parameters.Add("idtag", MySqlDbType.Int32).Value = 1;
-
-            foreach (var tag in tags)
-            {
-                if (tag != null)
-                {
-                    cmd.Parameters["idtag"].Value = tag.Id;
-                    cmd.ExecuteNonQuery();
-                }
-            }
-        }
-    }
+	}
 }
